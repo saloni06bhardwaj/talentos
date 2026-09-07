@@ -2,14 +2,28 @@
 
 import { Search, Bell, HelpCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { User, Profile } from '@/service/auth'
 
 interface TopBarProps {
   title: string
   subtitle?: string
   actions?: React.ReactNode
+  user?: User | null
+  profile?: Profile | null
 }
 
-export function TopBar({ title, subtitle, actions }: TopBarProps) {
+export function TopBar({ title, subtitle, actions, user, profile }: TopBarProps) {
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2)
+  }
+
+  const userInitials = profile?.full_name ? getInitials(profile.full_name) : 'U'
+
   return (
     <header className="sticky top-0 z-20 flex items-center justify-between h-14 px-6 bg-background/95 backdrop-blur border-b border-border">
       <div className="flex items-center gap-3 min-w-0">
@@ -41,7 +55,7 @@ export function TopBar({ title, subtitle, actions }: TopBarProps) {
           <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-primary rounded-full" />
         </Button>
         <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center cursor-pointer hover:bg-primary/30 transition-colors">
-          <span className="text-[10px] font-bold text-primary">LP</span>
+          <span className="text-[10px] font-bold text-primary">{userInitials}</span>
         </div>
       </div>
     </header>

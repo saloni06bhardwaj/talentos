@@ -5,8 +5,8 @@ import { Users, Briefcase, UserCheck, TrendingUp, TrendingDown, Clock, DollarSig
 const kpis = [
   {
     label: 'Total Employees',
-    value: '174',
-    change: '+12',
+    value: '0',
+    change: '+0',
     changeLabel: 'this month',
     trend: 'up',
     icon: Users,
@@ -15,8 +15,8 @@ const kpis = [
   },
   {
     label: 'Open Positions',
-    value: '23',
-    change: '+5',
+    value: '0',
+    change: '+0',
     changeLabel: 'this week',
     trend: 'up',
     icon: Briefcase,
@@ -25,8 +25,8 @@ const kpis = [
   },
   {
     label: 'New Hires',
-    value: '18',
-    change: '+3',
+    value: '0',
+    change: '+0',
     changeLabel: 'vs last month',
     trend: 'up',
     icon: UserCheck,
@@ -35,8 +35,8 @@ const kpis = [
   },
   {
     label: 'Avg Time to Hire',
-    value: '18d',
-    change: '-2d',
+    value: '0d',
+    change: '+0d',
     changeLabel: 'vs last month',
     trend: 'down-good',
     icon: Clock,
@@ -45,8 +45,8 @@ const kpis = [
   },
   {
     label: 'Monthly Payroll',
-    value: '$2.15M',
-    change: '+2.1%',
+    value: '$0',
+    change: '+0%',
     changeLabel: 'vs last month',
     trend: 'up',
     icon: DollarSign,

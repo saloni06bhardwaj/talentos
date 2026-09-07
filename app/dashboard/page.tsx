@@ -1,3 +1,7 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import { KpiCards } from '@/components/dashboard/kpi-cards'
 import { HiringFunnel } from '@/components/dashboard/hiring-funnel'
@@ -8,12 +12,44 @@ import { ActivityTimeline } from '@/components/dashboard/activity-timeline'
 import { Button } from '@/components/ui/button'
 import { Download, Plus } from 'lucide-react'
 import Link from 'next/link'
+import { getCurrentUser } from '@/service/auth'
+import { User, Profile, Company } from '@/service/auth'
 
 export default function DashboardPage() {
+  const router = useRouter()
+  const [user, setUser] = useState<User | null>(null)
+  const [profile, setProfile] = useState<Profile | null>(null)
+  const [company, setCompany] = useState<Company | null>(null)
+
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const data = await getCurrentUser()
+        if (!data) {
+          router.push('/login')
+          return
+        }
+        setUser(data.user)
+        setProfile(data.profile)
+        setCompany(data.company)
+      } catch (err) {
+        router.push('/login')
+      }
+    }
+    checkAuth()
+  }, [router])
+
+  if (!user || !profile || !company) {
+    return null
+  }
+
   return (
     <AppShell
       title="Dashboard"
       subtitle="Monday, January 22, 2025"
+      user={user}
+      profile={profile}
+      company={company}
       actions={
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">

@@ -5,11 +5,49 @@ import Link from 'next/link'
 import { Eye, EyeOff, ArrowRight, Sparkles, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { SignupRightPanel } from '@/components/signup/signup-right-panel'
+import { signUp } from '@/service/auth'
 
 export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [agreed, setAgreed] = useState(false)
+  const [companyName, setCompanyName] = useState('')
+  const [fullName, setFullName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setError('')
+    setSuccess('')
+
+    if (!companyName || !fullName || !email || !password || !confirmPassword) {
+      setError('All fields are required.')
+      return
+    }
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters.')
+      return
+    }
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.')
+      return
+    }
+
+    setLoading(true)
+    try {
+      await signUp({ companyName, fullName, email, password })
+      setSuccess('Account created successfully. Please verify your email.')
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Something went wrong.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-white flex">
@@ -56,7 +94,7 @@ export default function SignUpForm() {
         </div>
 
         {/* Form */}
-        <form className="space-y-4" action="/dashboard">
+        <form className="space-y-4" onSubmit={handleSubmit}>
           {/* Row: Company + Full Name */}
           <div className="grid grid-cols-2 gap-3">
             <FormField
@@ -65,6 +103,8 @@ export default function SignUpForm() {
               type="text"
               placeholder="Acme Corp"
               autoComplete="organization"
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
             />
             <FormField
               label="Full Name"
@@ -72,6 +112,8 @@ export default function SignUpForm() {
               type="text"
               placeholder="Sarah Chen"
               autoComplete="name"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
             />
           </div>
 
@@ -82,6 +124,8 @@ export default function SignUpForm() {
             type="email"
             placeholder="sarah@acme.com"
             autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
 
           {/* Password */}
@@ -95,6 +139,8 @@ export default function SignUpForm() {
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Min. 8 characters"
                 autoComplete="new-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full h-10 px-3.5 pr-10 text-[14px] text-slate-900 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 transition-all placeholder:text-slate-300 hover:border-slate-300"
               />
               <button
@@ -119,6 +165,8 @@ export default function SignUpForm() {
                 type={showConfirm ? 'text' : 'password'}
                 placeholder="Re-enter your password"
                 autoComplete="new-password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 className="w-full h-10 px-3.5 pr-10 text-[14px] text-slate-900 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 transition-all placeholder:text-slate-300 hover:border-slate-300"
               />
               <button
@@ -159,14 +207,19 @@ export default function SignUpForm() {
             </p>
           </div>
 
+          {/* Error / Success */}
+          {error && <p className="text-[13px] text-red-500">{error}</p>}
+          {success && <p className="text-[13px] text-green-600">{success}</p>}
+
           {/* Submit */}
           <div className="pt-2">
             <Button
               type="submit"
-              className="w-full h-11 bg-[#7c3aed] hover:bg-[#6d28d9] text-white text-[14px] font-semibold rounded-xl shadow-md shadow-purple-500/25 transition-all hover:shadow-lg hover:shadow-purple-500/30 hover:-translate-y-px active:translate-y-0"
+              disabled={loading}
+              className="w-full h-11 bg-[#7c3aed] hover:bg-[#6d28d9] text-white text-[14px] font-semibold rounded-xl shadow-md shadow-purple-500/25 transition-all hover:shadow-lg hover:shadow-purple-500/30 hover:-translate-y-px active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Create Workspace
-              <ArrowRight className="w-4 h-4 ml-2" />
+              {loading ? 'Creating…' : 'Create Workspace'}
+              {!loading && <ArrowRight className="w-4 h-4 ml-2" />}
             </Button>
           </div>
         </form>
@@ -174,7 +227,7 @@ export default function SignUpForm() {
         {/* Sign in link */}
         <p className="mt-8 text-center text-[13px] text-slate-500">
           Already have an account?{' '}
-          <Link href="/" className="text-purple-600 font-semibold hover:text-purple-700 transition-colors">
+          <Link href="/login" className="text-purple-600 font-semibold hover:text-purple-700 transition-colors">
             Sign In
           </Link>
         </p>
@@ -196,12 +249,16 @@ function FormField({
   type,
   placeholder,
   autoComplete,
+  value,
+  onChange,
 }: {
   label: string
   id: string
   type: string
   placeholder: string
   autoComplete?: string
+  value?: string
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
 }) {
   return (
     <div className="space-y-1.5">
@@ -213,6 +270,8 @@ function FormField({
         type={type}
         placeholder={placeholder}
         autoComplete={autoComplete}
+        value={value}
+        onChange={onChange}
         className="w-full h-10 px-3.5 text-[14px] text-slate-900 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 transition-all placeholder:text-slate-300 hover:border-slate-300"
       />
     </div>
